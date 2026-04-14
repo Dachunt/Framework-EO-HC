@@ -18,7 +18,8 @@ export interface Account {
 }
 
 export interface BankState {
-  cuenta: Account | null;
+  cuentas: Account[];
+  currentAccountId: string | null;
   transacciones: Transaction[];
 }
 

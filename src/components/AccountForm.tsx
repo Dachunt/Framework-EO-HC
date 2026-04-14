@@ -3,14 +3,11 @@ import { useBank } from '../context/BankContext';
 import { validateAccountHolder, validateInitialBalance } from '../utils/validators';
 
 export function AccountForm() {
-  const { createAccount, hasAccount } = useBank();
+  const { createAccount, accounts, hasAccount, selectAccount } = useBank();
   const [nombreTitular, setNombreTitular] = useState('');
   const [saldoInicial, setSaldoInicial] = useState('');
   const [error, setError] = useState('');
-
-  if (hasAccount) {
-    return null;
-  }
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +32,49 @@ export function AccountForm() {
     } else {
       setNombreTitular('');
       setSaldoInicial('');
+      setShowCreateForm(false);
     }
   };
+
+  const handleSelectAccount = (accountId: string) => {
+    selectAccount(accountId);
+  };
+
+  if (hasAccount) {
+    return null;
+  }
+
+  if (accounts.length > 0 && !showCreateForm) {
+    return (
+      <div className="card">
+        <h2>Seleccionar Cuenta</h2>
+        <p className="info-text">Selecciona una cuenta existente o crea una nueva:</p>
+        <div className="account-list">
+          {accounts.map((account) => (
+            <div key={account.id} className="account-item">
+              <div className="account-info">
+                <span className="account-name">{account.nombreTitular}</span>
+                <span className="account-balance">${account.saldo.toFixed(2)}</span>
+              </div>
+              <button
+                onClick={() => handleSelectAccount(account.id)}
+                className="btn btn-primary"
+              >
+                Seleccionar
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="btn btn-outline"
+          style={{ marginTop: '1rem' }}
+        >
+          + Crear Nueva Cuenta
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="card">
@@ -65,9 +103,20 @@ export function AccountForm() {
           />
         </div>
         {error && <div className="error-message">{error}</div>}
-        <button type="submit" className="btn btn-primary">
-          Crear Cuenta
-        </button>
+        <div className="button-group">
+          <button type="submit" className="btn btn-primary">
+            Crear Cuenta
+          </button>
+          {accounts.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowCreateForm(false)}
+              className="btn btn-outline"
+            >
+              Volver
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

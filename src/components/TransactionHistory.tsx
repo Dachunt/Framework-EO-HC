@@ -3,7 +3,7 @@ import { formatDateTime } from '../utils/dateHelpers';
 import type { TransactionType } from '../types';
 
 export function TransactionHistory() {
-  const { state, hasAccount } = useBank();
+  const { hasAccount, getCurrentAccountTransactions } = useBank();
 
   if (!hasAccount) {
     return null;
@@ -39,7 +39,7 @@ export function TransactionHistory() {
     }
   };
 
-  const sortedTransactions = [...state.transacciones].sort(
+  const sortedTransactions = [...getCurrentAccountTransactions()].sort(
     (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
   );
 
