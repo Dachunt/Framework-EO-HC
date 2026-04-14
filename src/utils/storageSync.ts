@@ -23,21 +23,22 @@ export function loadFromStorage(): BankState | null {
       return null;
     }
     const parsed = JSON.parse(serializedState);
+    
+    // Nueva estructura con soporte multi-cuenta
     return {
-      ...parsed,
+      cuentas: parsed.cuentas || (parsed.cuenta ? [{
+        ...parsed.cuenta,
+        fechaCreacion: new Date(parsed.cuenta.fechaCreacion)
+      }] : []),
+      currentAccountId: parsed.currentAccountId || (parsed.cuenta?.id || null),
       transacciones: parsed.transacciones.map((t: Record<string, unknown>) => ({
         ...t,
         fecha: new Date(t.fecha as string),
       })),
-      cuenta: parsed.cuenta
-        ? {
-            ...parsed.cuenta,
-            fechaCreacion: new Date(parsed.cuenta.fechaCreacion as string),
-          }
-        : null,
     };
   } catch (error) {
     console.error('Error loading from localStorage:', error);
+    localStorage.removeItem(STORAGE_KEY);
     return null;
   }
 }
